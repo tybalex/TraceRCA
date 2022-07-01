@@ -6,16 +6,43 @@ import click
 import pickle
 import pandas as pd
 from pathlib import Path
-from loguru import logger
+import logging
 
-from data.trainticket.download import simple_name
 from trainticket_config import *
 
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__file__)
+logger.setLevel("DEBUG")
 """
 Encode train-ticket pickle data into data frame of invocations:
     source, target, start time, end time, trace_id, features
     ...
 """
+
+### python run_invo_encoding.py -i data/test/basic_abort_1011.pkl -o dataframe/basic_abort_1011.pkl
+### python run_invo_encoding.py -i A/uninjection/3.pkl -o dataframe/uninjection/3.pkl
+
+
+def simple_name(full_name):
+    if 'istio-ingressgateway' in full_name:
+        return 'gateway'
+    full_name = full_name.split('.')[0]
+    ret_list = []
+    ok = False
+    for part in full_name.split("-"):
+        if part == "ts":
+            ok = True
+        elif "service" in part:
+            ok = False
+            break
+        elif ok:
+            ret_list.append(part)
+    if len(ret_list) <= 0:
+        ret = full_name
+    else:
+        ret = "-".join(ret_list)
+    assert ret in INVOLVED_SERVICES, f"full={full_name}, ret_list={ret_list}"
+    return ret
 
 
 @click.command('invo-encoding')
@@ -96,6 +123,8 @@ def train_ticket_invo_encoding_main(input_file: str, output_file: str):
     for service in np.unique(df.target):
         assert service in INVOLVED_SERVICES, f'{service} {df[df.source == service]}'
     with open(output_file, 'wb+') as f:
+        logger.info(f"output file : {output_file}")
+        logger.info(df)
         pickle.dump(df, f)
 
 

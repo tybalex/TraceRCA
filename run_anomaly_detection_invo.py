@@ -5,14 +5,18 @@ from pathlib import Path
 import click
 import numpy as np
 from sklearn.ensemble import IsolationForest
-from loguru import logger
+import logging
 from trainticket_config import FEATURE_NAMES
 from diskcache import Cache
 
 DEBUG = True
 
 threshold = 1.0
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__file__)
+logger.setLevel("DEBUG")
 
+### python run_anomaly_detection_invo.py -i dataframe/basic_abort_1011.pkl -o anomaly_detection_invo_output/basic_abort_1011.pkl -h dataframe/uninjection/3.pkl -u output/basic_abort_1011.feature -c model/history/3.pkl
 
 def anomaly_detection_isolation_forest(df, result_column, history, cache):
     indices = np.unique(df.index.values)
@@ -100,6 +104,7 @@ def invo_anomaly_detection_main(input_file, output_file, history, useful_feature
     # print("algo:", "IF", "time:", toc - tic, 'invos:', len(df))
 
     df['predict'] = df['Ours-predict']
+    logger.info(len(df[df['predict'] == df["trace_label"]]) / len(df))
     with open(output_file, 'wb+') as f:
         pickle.dump(df, f)
 

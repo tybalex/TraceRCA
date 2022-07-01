@@ -6,13 +6,17 @@ from pathlib import Path
 import click
 import numpy as np
 import seaborn as sns
-from loguru import logger
+import logging
 from tqdm import tqdm
 from pprint import pprint
 from trainticket_config import FEATURE_NAMES
+import pandas as pd
 
 DEBUG = False  # very slow
-
+## python run_selecting_features.py -i dataframe/basic_abort_1011.pkl -o output/basic_abort_1011.feature -h dataframe/uninjection/3.pkl
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__file__)
+logger.setLevel("DEBUG")
 
 def distribution_criteria(empirical, reference, threshold):
     empirical, reference = np.array(empirical), np.array(reference)
@@ -54,7 +58,7 @@ def selecting_feature_main(input_file: str, output_file: str, history: str, fish
     output_file = Path(output_file)
     with open(history, 'rb') as f:
         history = pickle.load(f)
-    # logger.debug(f'{input_file}')
+    logger.debug(f'{input_file}')
     with open(str(input_file), 'rb') as f:
         df = pickle.load(f)
     df = df.set_index(keys=['source', 'target'], drop=True).sort_index()

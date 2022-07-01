@@ -1,12 +1,12 @@
 # Run all experiments
-ROOT := /TraceAnalysis
+ROOT := ./
 OUTPUT := $(ROOT)/output
 # OUTPUT := $(ROOT)/tracerca-exp/data/dockeroutput
 # ORIGIN_DATA_DIR := $(ROOT)/tracerca-exp/data/
-ORIGIN_DATA_DIR := $(ROOT)/tracerca-exp/data/
+ORIGIN_DATA_DIR := $(ROOT)/data/
 ROOT_CAUSE_DIR := $(ORIGIN_DATA_DIR)/root_causes/
-SCRIPT_DIR := $(ROOT)/tracerca-exp
-CONFIG_SCRIPTS := $(ROOT)/tracerca-exp/trainticket_config.py
+SCRIPT_DIR := $(ROOT)
+CONFIG_SCRIPTS := $(ROOT)/trainticket_config.py
 UPDATE_CACHE_FLAG :=
 
 

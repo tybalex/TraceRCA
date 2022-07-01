@@ -2,13 +2,17 @@ import pickle
 
 import click
 import numpy as np
-from loguru import logger
+import logging
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from trainticket_config import FEATURE_NAMES
 
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__file__)
+logger.setLevel("DEBUG")
+### python run_anomaly_detection_prepare_model.py -i dataframe/uninjection/3.pkl -t dataframe/uninjection-trace/3.pkl.npz -o model/history/3.pkl
 
 def extract_data(path):
     x = np.load(path)
@@ -45,7 +49,7 @@ def main(trace_history, invo_history, output_file):
     for source, target in indices:
         reference = invo_history.loc[(source, target), FEATURE_NAMES].values
         token = f"IF-{source}-{target}"
-        model = IsolationForest(behaviour='new', contamination=0.01, n_jobs=10)
+        model = IsolationForest(contamination=0.01, n_jobs=10)
         model.fit(reference)
         result[token] = model
 

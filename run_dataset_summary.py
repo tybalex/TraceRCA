@@ -2,12 +2,17 @@ import click
 import pickle
 import numpy as np
 import pandas as pd
-from loguru import logger
+import logging
 from pathlib import Path
 from tqdm import tqdm
 import re
 from datetime import datetime
 
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__file__)
+logger.setLevel("DEBUG")
+
+# python run_dataset_summary.py -i dataframe/basic_abort_1011.pkl
 
 def extract_data(path):
     x = np.load(path)
@@ -21,13 +26,16 @@ def main(input_files):
     for input_file in tqdm(input_files):
         if input_file.endswith('.npz'):
             pass
-        elif input_file.endswith('invo.pkl'):
+        #elif input_file.endswith('invo.pkl'):
+        elif input_file.endswith('.pkl'):
             with open(input_file, 'rb') as f:
                 invo_data_list.append(pickle.load(f))
         else:
             logger.warning(f"not recongnized file: {input_file}")
-    invo_data = pd.concat(invo_data_list, ignore_index=True)
 
+    invo_data = pd.concat(invo_data_list, ignore_index=True)
+    logger.info(invo_data)
+    logger.info(invo_data[invo_data['trace_label'] == 1])
     # numbers
     logger.info(f"# Traces: {len(invo_data.trace_id.unique())}")
     logger.info(f"# Invocations: {len(invo_data)}")

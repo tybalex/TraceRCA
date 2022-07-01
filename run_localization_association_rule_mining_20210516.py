@@ -10,13 +10,17 @@ from typing import List, FrozenSet
 import click
 import numpy as np
 import pandas as pd
-from loguru import logger
+import logging
 from mlxtend.frequent_patterns import fpgrowth
 from mlxtend.preprocessing import TransactionEncoder
 
 from trainticket_config import EXP_NOISE_LIST
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__file__)
+logger.setLevel("DEBUG")
 
 
+# python run_localization_association_rule_mining_20210516.py -i anomaly_detection_invo_output/basic_abort_1011.pkl -o rca/basic_abort_1011.pkl
 PREDICT_COLUMN = 'predict'
 
 

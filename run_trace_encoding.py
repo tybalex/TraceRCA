@@ -6,12 +6,15 @@ import click
 import pickle
 import pandas as pd
 from pathlib import Path
-from loguru import logger
+import logging
 from tqdm import tqdm
 
-from data.trainticket.download import simple_name
+
 from trainticket_config import *
 
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__file__)
+logger.setLevel("INFO")
 """
 Encode train-ticket pickle data into trace-level data and label:
 {
@@ -21,6 +24,29 @@ Encode train-ticket pickle data into trace-level data and label:
 'trace_ids': array in shape (n_traces)
 }
 """
+
+### python run_trace_encoding.py -i A/uninjection/3.pkl -o dataframe/uninjection-trace/3.pkl
+
+def simple_name(full_name):
+    if 'istio-ingressgateway' in full_name:
+        return 'gateway'
+    full_name = full_name.split('.')[0]
+    ret_list = []
+    ok = False
+    for part in full_name.split("-"):
+        if part == "ts":
+            ok = True
+        elif "service" in part:
+            ok = False
+            break
+        elif ok:
+            ret_list.append(part)
+    if len(ret_list) <= 0:
+        ret = full_name
+    else:
+        ret = "-".join(ret_list)
+    assert ret in INVOLVED_SERVICES, f"full={full_name}, ret_list={ret_list}"
+    return ret
 
 
 def encoding_data(source_data: List, drop_service=(), drop_fault_type=()):

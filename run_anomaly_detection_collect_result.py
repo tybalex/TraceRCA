@@ -2,8 +2,7 @@ import click
 from pathlib import Path
 import pandas as pd
 import pickle
-from sklearn.metrics import *
-from loguru import logger
+from sklearn.metrics import * d
 import numpy as np
 
 
