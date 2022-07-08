@@ -1,3 +1,7 @@
+cd src
+python main_rca.py
+cd ..
+
 INVO_FILE=realtime
 HISTORY_FILE=history
 

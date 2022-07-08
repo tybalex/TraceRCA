@@ -206,17 +206,17 @@ def parse_results(l):
             continue
         else:
             this_trace_id=span["trace_id"]
-            # http_status = span["http_status"]
-            http_status = 500
+            http_status = span["http_status"]
+            # http_status = 500
             if this_trace_id not in df:
                 df[this_trace_id] = new_dict(this_trace_id, http_status)
             df[this_trace_id]["timestamp"].append(span["start_timestamp"])
             df[this_trace_id]["endtime"].append(span["end_timestamp"])
-            if span["target"] == "adservice":
-                df[this_trace_id]["latency"].append(span["latency"] * 2)
-            else:
-                df[this_trace_id]["latency"].append(span["latency"])
-
+            # if span["target"] == "adservice":
+            #     df[this_trace_id]["latency"].append(span["latency"] * 2)
+            # else:
+                # df[this_trace_id]["latency"].append(span["latency"])
+            df[this_trace_id]["latency"].append(span["latency"])
             
             df[this_trace_id]["http_status"].append(span["http_status"])
             df[this_trace_id]["s_t"].append((span["source"], span["target"]))
