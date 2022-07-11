@@ -7,12 +7,13 @@ from pathlib import Path
 from tqdm import tqdm
 import re
 from datetime import datetime
+from collections import defaultdict
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__file__)
 logger.setLevel("DEBUG")
 
-# python run_dataset_summary.py -i dataframe/basic_abort_1011.pkl
+# python run_dataset_summary.py -i dataframe/order-other+assurance_cpu_1021.pkl
 
 def extract_data(path):
     x = np.load(path)
@@ -32,7 +33,7 @@ def main(input_files):
                 invo_data_list.append(pickle.load(f))
         else:
             logger.warning(f"not recongnized file: {input_file}")
-
+    microserviser_pairs = defaultdict(int)
     invo_data = pd.concat(invo_data_list, ignore_index=True)
     logger.info(invo_data)
     logger.info(invo_data[invo_data['trace_label'] == 1])
@@ -44,10 +45,12 @@ def main(input_files):
     logger.info(f"# Affected Invocations: {len(invo_data[invo_data.trace_label == 1])}")
     logger.info(f"# Injections: "
                 f"{len(list(filter(lambda filename: 'normal' not in filename and filename.endswith('.invo.pkl'), input_files)))}")
-
-    logger.info(f"time range: {datetime.fromtimestamp(invo_data.start_timestamp.min())} "
-                f"{datetime.fromtimestamp(invo_data.end_timestamp.max())}")
-
+    invo_data["pairs"] = invo_data["source"] + "->"+ invo_data["target"]
+    logger.info(unique_pair:=invo_data.pairs.unique())
+    logger.info(len(unique_pair))
+    # logger.info(f"time range: {datetime.fromtimestamp(invo_data.start_timestamp.min())} "
+    #             f"{datetime.fromtimestamp(invo_data.end_timestamp.max())}")
+    # invo_data.to_csv("example.csv")
 
 if __name__ == '__main__':
     main()
