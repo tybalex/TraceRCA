@@ -1,6 +1,6 @@
 cd src
 python main_rca.py
- cd ..
+cd ..
 
 INVO_FILE=realtime
 HISTORY_FILE=history

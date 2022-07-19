@@ -100,7 +100,6 @@ def parse_results(l):
     traces_dict = defaultdict() 
     span_dict = defaultdict(dict)
 
-
     for _x in l:
         x = _x["_source"]
         traceid = x["traceId"]
