@@ -15,7 +15,7 @@ logger = logging.getLogger(__file__)
 logger.setLevel("DEBUG")
 
 es = Elasticsearch(
-    ["https://dev.tybalex.us:9200"],
+    ["https://demo.tybalex.us:9200"],
     port=9200,
     http_compress=True,
     http_auth=("admin", "admin"),
@@ -99,7 +99,7 @@ def parse_results(l):
     pair_service_set = set()
     traces_dict = defaultdict() 
     span_dict = defaultdict(dict)
-    pair_span = set()
+
 
     for _x in l:
         x = _x["_source"]
@@ -109,15 +109,31 @@ def parse_results(l):
         this_spanid = x["spanId"]
         latency = datetime_to_timestamp(x["endTime"]) - datetime_to_timestamp(x["startTime"])
         if parent_spanid == "": ## top level span
-            assert kind == "SPAN_KIND_SERVER"
-            traces_dict[traceid] = {
+            if kind == "SPAN_KIND_SERVER":
+                
+                traces_dict[traceid] = {
                 "trace_start_timestamp" : datetime_to_timestamp(x["startTime"]),
                 "trace_end_timestamp" : datetime_to_timestamp(x["traceGroupFields.endTime"]),
                 "http_status" : int(x["span.attributes.http@status_code"]) #// 100
-            }
+                }
+                http_status_set.add(int(x["span.attributes.http@status_code"]))
+            elif kind == "SPAN_KIND_CLIENT": 
+                custom_http = 210 if int(x["traceGroupFields.statusCode"]) == 0 else 510
+                traces_dict[traceid] = {
+                "trace_start_timestamp" : datetime_to_timestamp(x["startTime"]),
+                "trace_end_timestamp" : datetime_to_timestamp(x["traceGroupFields.endTime"]),
+                "http_status" : custom_http
+                }
+            # span_dict[this_spanid] = {
+            #         "trace_id" :traceid,
+            #         "span_id" : this_spanid,
+            #         "start_timestamp" : datetime_to_timestamp(x["startTime"]),
+            #         "end_timestamp" : datetime_to_timestamp(x["endTime"]),
+            #         "latency" : latency, #x["durationInNanos"],
+            #         }
+
         else:
             if kind == "SPAN_KIND_CLIENT":
-                pair_span.add(this_spanid)
                 span_dict[this_spanid] = {
                     "trace_id" :traceid,
                     "span_id" : this_spanid,
@@ -133,7 +149,18 @@ def parse_results(l):
         this_spanid = x["spanId"]
         
         if parent_spanid == "": ## top level span
-            assert kind == "SPAN_KIND_SERVER"
+            if kind == "SPAN_KIND_CLIENT":
+                span_dict[this_spanid]["source"] = x["serviceName"]
+                span_dict[this_spanid]["trace_start_timestamp"] = traces_dict[traceid]["trace_start_timestamp"]
+                span_dict[this_spanid]["trace_end_timestamp"] = traces_dict[traceid]["trace_end_timestamp"]
+                span_dict[this_spanid]["http_status"] = traces_dict[traceid]["http_status"]
+            #assert kind == "SPAN_KIND_SERVER"
+            # span_dict[this_spanid]["target"] = x["serviceName"]
+            # span_dict[this_spanid]["source"] = "gateway"
+            # span_dict[this_spanid]["trace_start_timestamp"] = traces_dict[traceid]["trace_start_timestamp"]
+            # span_dict[this_spanid]["trace_end_timestamp"] = traces_dict[traceid]["trace_end_timestamp"]
+            # span_dict[this_spanid]["http_status"] = traces_dict[traceid]["http_status"]
+            
             # span_dict[this_spanid] = {
             #     "trace_id" :traceid,
             #     "span_id" : this_spanid,
@@ -165,6 +192,7 @@ def parse_results(l):
 
     print(f"trace number : {len(traces_dict)}")
     microserviser_pairs = defaultdict(int)
+    print(f"http status codes : {http_status_set}")
     features = ['source', 'target', 'start_timestamp', 'end_timestamp',
             'trace_id',
             'latency', 'http_status',
