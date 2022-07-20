@@ -1,6 +1,6 @@
-cd src
-python main_rca.py
-cd ..
+#cd src
+#python main_rca.py
+#cd ..
 
 INVO_FILE=realtime
 HISTORY_FILE=history
@@ -35,4 +35,4 @@ python run_anomaly_detection_invo.py -i dataframe/$INVO_FILE.pkl -o anomaly_dete
 
 echo "==========ROOT CAUSE LOCALIZATION=========="
 # run localization
-python run_localization_association_rule_mining_20210516.py -i anomaly_detection_invo_output/$INVO_FILE.pkl -o rca/$INVO_FILE.pkl
+python run_localization_association_rule_mining_20210516.py -i anomaly_detection_invo_output/$INVO_FILE.pkl -o rca/$INVO_FILE.pkl # --enable-PRFL

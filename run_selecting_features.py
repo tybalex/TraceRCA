@@ -111,6 +111,5 @@ def selecting_feature_main(input_file: str, output_file: str, history: str, fish
     with open(output_file, 'w+') as f:
         print(dict(useful_features_dict), file=f)
 
-
 if __name__ == '__main__':
     selecting_feature_main()

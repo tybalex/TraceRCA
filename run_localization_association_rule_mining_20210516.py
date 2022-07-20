@@ -74,7 +74,7 @@ def main(input_file, output_file, min_support_rate, quiet, k, enable_prfl):
             predict_column=PREDICT_COLUMN,
             quiet=quiet,
             forbidden_names=frozenset({"gateway"}),
-            enable_PRFL=False
+            enable_PRFL=enable_prfl
         )
         toc = time.time()
         print(f'{output_file} {noise=} speed={n_traces / (toc - tic):.2f}traces/second, time={toc - tic:.2f}s')
@@ -215,7 +215,7 @@ class PRFL:
         kind2abnormal_traces = defaultdict(list)
         kind2normal_traces = defaultdict(list)
         for trace_id in data.trace_id.unique():
-            kind = frozenset(set(trace_id_indexed_data.loc[trace_id, ['source', 'target']].apply(tuple).unique()))
+            kind = frozenset(set(trace_id_indexed_data.loc[[trace_id], ['source', 'target']].apply(tuple, axis=1).unique()))
             trace2kind[trace_id] = kind
             if trace_id in abnormal_traces:
                 kind2abnormal_traces[kind].append(trace_id)
@@ -303,6 +303,7 @@ class TraceRCA:
                 return 1 / (1 / np.maximum(p_a_given_b, 1e-4) + 1 / np.maximum(p_b_given_a, 1e-4) - 1)
         else:
             prfl = PRFL(input_file, itemset_handler)
+            print("prfl enabled")
 
             @lru_cache(maxsize=None)
             def jaccard_similarity(_itemset):
